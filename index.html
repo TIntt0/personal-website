@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tingting Liu / Comp. Chem.</title>
+<style>
+  :root{
+    --primary:#1a3a5c;
+    --accent:#2c5f8a;
+    --text:#222;
+    --muted:#666;
+    --bg:#ffffff;
+    --line:#e0e6ec;
+    --sidebar-bg:#fbfcfd;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Helvetica Neue","Segoe UI",Arial,"PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--text);
+    background:var(--bg);
+    line-height:1.7;
+    font-size:15px;
+  }
+  a{color:var(--accent);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* Layout: centered container with sticky left sidebar + right content */
+  .layout{
+    display:grid;
+    grid-template-columns:300px 1fr;
+    max-width:1080px;
+    margin:0 auto;
+    min-height:100vh;
+  }
+
+  /* Left sidebar (sticky, scrolls with container) */
+  aside.sidebar{
+    position:sticky;
+    top:0;
+    align-self:start;
+    height:100vh;
+    background:var(--sidebar-bg);
+    border-right:1px solid var(--line);
+    padding:40px 28px;
+    overflow-y:auto;
+    display:flex;flex-direction:column;
+  }
+  .sidebar .photo{
+    width:150px;height:150px;border-radius:50%;
+    overflow:hidden;margin:0 auto 18px;
+    border:4px solid #fff;
+    box-shadow:0 6px 18px rgba(0,0,0,.12);
+    background:#eee;
+  }
+  .sidebar .photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .sidebar .name{
+    text-align:center;font-size:22px;font-weight:700;
+    color:var(--primary);letter-spacing:.3px;
+  }
+  .sidebar .tagline{
+    text-align:center;font-size:13px;color:var(--accent);
+    font-style:italic;margin-top:2px;
+  }
+  .sidebar .aff{
+    text-align:center;font-size:12.5px;color:var(--muted);
+    margin-top:8px;line-height:1.5;
+  }
+  .sidebar .contacts{margin-top:14px;font-size:13px;}
+  .sidebar .contacts div{margin-bottom:3px;color:#444;}
+  .sidebar .contacts .label{color:var(--muted);display:inline-block;width:42px;}
+
+  nav.menu{margin-top:22px;border-top:1px solid var(--line);padding-top:18px;}
+  nav.menu a{
+    display:block;padding:9px 12px;margin-bottom:2px;
+    color:var(--muted);font-size:14px;
+    border-left:3px solid transparent;
+    transition:all .2s;
+  }
+  nav.menu a:hover{
+    color:var(--primary);background:#eef3f8;
+    text-decoration:none;border-left-color:var(--accent);
+  }
+  nav.menu a.active{
+    color:var(--primary);font-weight:600;
+    background:#eaf1f7;border-left-color:var(--accent);
+  }
+
+  /* Right content */
+  main.content{
+    grid-column:2;
+    padding:60px 70px;
+    max-width:820px;
+  }
+  .page-section{display:none;}
+  .page-section.active{display:block;animation:fade .35s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+  .page-section h1{
+    font-size:26px;color:var(--primary);
+    font-weight:700;margin-bottom:20px;
+    padding-bottom:10px;border-bottom:2px solid var(--primary);
+  }
+  .page-section p{margin-bottom:14px;color:#333;}
+  .page-section h2{
+    font-size:17px;color:var(--primary);font-weight:700;
+    margin:24px 0 10px;
+  }
+
+  /* Lists */
+  ul.interests{list-style:none;padding-left:0;}
+  ul.interests li{
+    padding:8px 0 8px 22px;position:relative;
+    border-bottom:1px dashed var(--line);
+  }
+  ul.interests li:last-child{border-bottom:none;}
+  ul.interests li::before{
+    content:"▸";position:absolute;left:0;color:var(--accent);font-weight:700;
+  }
+
+  /* Publications */
+  .pub{padding:14px 0;border-bottom:1px solid var(--line);}
+  .pub:last-child{border-bottom:none;}
+  .pub .authors{font-size:13.5px;color:var(--muted);}
+  .pub .title{font-weight:600;color:var(--text);margin:3px 0;}
+  .pub .venue{font-style:italic;color:var(--accent);font-size:14px;}
+  .pub .links{margin-top:5px;font-size:13px;}
+  .pub .links a{margin-right:12px;}
+
+  /* Timeline */
+  .timeline{position:relative;padding-left:22px;margin-top:8px;}
+  .timeline::before{
+    content:"";position:absolute;left:4px;top:6px;bottom:6px;
+    width:2px;background:var(--line);
+  }
+  .tl-item{position:relative;padding:0 0 20px 0;}
+  .tl-item:last-child{padding-bottom:0;}
+  .tl-item::before{
+    content:"";position:absolute;left:-22px;top:7px;
+    width:10px;height:10px;border-radius:50%;
+    background:var(--accent);border:2px solid #fff;
+    box-shadow:0 0 0 2px var(--accent);
+  }
+  .tl-date{font-size:12.5px;color:var(--muted);font-style:italic;}
+  .tl-title{font-weight:600;color:var(--text);margin:2px 0;font-size:14.5px;}
+  .tl-org{font-size:13.5px;color:var(--accent);font-style:italic;}
+  .tl-desc{font-size:13.5px;color:#444;margin-top:4px;}
+  /* Award timeline item */
+  .tl-item.award::before{background:#c79b2c;box-shadow:0 0 0 2px #c79b2c;}
+  .tl-item.award .tl-title{color:#8a6a10;}
+  .tl-item.award .tl-title::before{content:"🏅 ";}
+
+  /* Icon links */
+  .icon-link{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;
+    color:#fff;background:#333;
+    transition:transform .2s, background .2s;
+    vertical-align:middle;
+  }
+  .icon-link:hover{background:var(--accent);transform:translateY(-1px);}
+  .icon-link svg{width:14px;height:14px;fill:#fff;display:block;}
+  .contacts .icons-line{
+    display:flex;align-items:center;justify-content:center;gap:10px;margin-top:6px;
+  }
+  .contacts .icons-line a{display:inline-flex;}
+  .site-footer{
+    margin-top:40px;padding-top:18px;
+    border-top:1px solid var(--line);
+    text-align:center;color:var(--muted);font-size:12px;
+  }
+
+  /* Responsive */
+  @media(max-width:760px){
+    .layout{grid-template-columns:1fr;max-width:none;}
+    aside.sidebar{
+      position:static;width:100%;height:auto;
+      border-right:none;border-bottom:1px solid var(--line);
+      padding:28px 22px;
+    }
+    .sidebar .photo{width:120px;height:120px;}
+    main.content{padding:32px 22px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="photo">
+      <img src="ltt.jpg" alt="Tingting Liu">
+    </div>
+    <div class="name">Tingting Liu</div>
+    <div class="tagline">Ph.D. Student · Comp. Chem.</div>
+    <div class="aff">
+      Department of Chemistry,<br>
+      The Chinese University of Hong Kong<br>
+      <a href="https://xinglong-zhang.github.io/zh/index.html" target="_blank" rel="noopener" style="font-size:12.5px;">Zhang Group @ CUHK</a>
+    </div>
+    <div class="contacts">
+      <div><span class="label">Email:</span> <a href="mailto:youziduyue@126.com">youziduyue@126.com</a></div>
+      <div><span class="label">Office:</span> Shaw Sci. Bldg., CUHK</div>
+      <div class="icons-line">
+        <a href="https://github.com/TIntt0" target="_blank" rel="noopener" class="icon-link" title="GitHub">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 .5C5.73.5.67 5.56.67 11.83c0 4.97 3.22 9.18 7.69 10.68.56.1.77-.24.77-.54 0-.27-.01-1.17-.02-2.12-3.13.68-3.79-1.34-3.79-1.34-.51-1.3-1.24-1.64-1.24-1.64-1.02-.7.08-.68.08-.68 1.13.08 1.72 1.16 1.72 1.16 1 1.71 2.63 1.22 3.27.93.1-.73.39-1.22.71-1.5-2.5-.28-5.13-1.25-5.13-5.56 0-1.23.44-2.23 1.16-3.02-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.09 1.15a10.7 10.7 0 0 1 5.62 0c2.15-1.45 3.09-1.15 3.09-1.15.61 1.54.23 2.68.11 2.96.72.79 1.16 1.79 1.16 3.02 0 4.32-2.63 5.28-5.14 5.55.4.35.76 1.03.76 2.08 0 1.5-.01 2.71-.01 3.08 0 .3.2.65.77.54 4.47-1.5 7.68-5.71 7.68-10.68C23.33 5.56 18.27.5 12 .5z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <nav class="menu" id="menu">
+      <a href="#" data-target="about" class="active">About</a>
+      <a href="#" data-target="publications">Publications</a>
+      <a href="#" data-target="experience">Experience &amp; Awards</a>
+      <a href="#" data-target="cv">More</a>
+    </nav>
+  </aside>
+
+  <!-- RIGHT CONTENT -->
+  <main class="content">
+
+    <!-- ABOUT -->
+    <section class="page-section active" id="about">
+      <h1>About</h1>
+      <p>
+        Welcome to my homepage! I am a first-year Ph.D. student in the
+        <a href="https://chem.cuhk.edu.hk/" target="_blank" rel="noopener">Department of Chemistry, The Chinese University of Hong Kong</a>,
+        working under the supervision of
+        <a href="https://xinglong-zhang.github.io/" target="_blank" rel="noopener">Prof. Xinglong Zhang</a>.
+        Our group develops computational chemistry tools and machine-learning potentials to
+        automate workflows and accelerate chemical discovery.
+      </p>
+      <p>
+        Before joining CUHK in Aug 2026, I obtained my Bachelor of Science in Chemistry at
+        <a href="https://www.zju.edu.cn/english/" target="_blank" rel="noopener">Zhejiang University</a>.
+      </p>
+      <h2 style="font-size:15px;color:var(--primary);font-weight:700;margin:18px 0 6px;">Research Interests</h2>
+      <p style="margin-bottom:6px;color:#333;">
+        DFT-based mechanistic study of organic/organometallic catalysis, development of MLIPs for
+        complex chemical systems, and automated high-throughput quantum-chemistry workflows
+        integrated with machine learning.
+      </p>
+      
+      <p style="margin-top:14px;">
+        Originally from the Chinese mainland, I am now based in Hong Kong. Outside of research, I enjoy
+        scientific illustration, teaching, and volunteering. Thanks for stopping by!
+      </p>
+    </section>
+
+    <!-- PUBLICATIONS -->
+    <section class="page-section" id="publications">
+      <h1>Publications</h1>
+
+      <div class="pub">
+        <div class="authors">Liu, Yingchun; <strong>Liu, Ting-Ting</strong>; Zhang, Yinan; Lu, Xinkai; Wang, Qi; Long, Yun.</div>
+        <div class="title">A WebApp for Digitalized Exploration of Binary Vapor&ndash;Liquid Equilibria and Distillation.</div>
+        <div class="venue">Journal of Chemical Education, 2026 (Accepted April 2026).</div>
+        <div class="links">
+          DOI: <a href="https://doi.org/10.1021/acs.jchemed.5c01256" target="_blank" rel="noopener">10.1021/acs.jchemed.5c01256</a>
+        </div>
+      </div>
+
+      <div class="pub">
+        <div class="authors">Xu, Li-Cheng; Zhu, De-Xin; Tang, Miao-Jiong; <strong>Liu, Ting-Ting</strong>; Liu, Yi-Ze; Ma, Chun-Hui; Li, Zhe-Xu; Zhang, Shuo-Qing; Hong, Xin.</div>
+        <div class="title">Transforming Molecular Synthesis With Large Language Models.</div>
+        <div class="venue">Chemistry &ndash; A European Journal, 2026, e71074.</div>
+        <div class="links">
+          DOI: <a href="https://doi.org/10.1002/chem.71074" target="_blank" rel="noopener">10.1002/chem.71074</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE & AWARDS -->
+    <section class="page-section" id="experience">
+      <h1>Experience &amp; Awards</h1>
+      <div class="timeline">
+
+        <div class="tl-item">
+          <div class="tl-date">08/2026 &ndash; Present</div>
+          <div class="tl-title">Ph.D. in Chemistry</div>
+          <div class="tl-org">The Chinese University of Hong Kong &middot; Supervisor: Prof. Xinglong Zhang</div>
+          <div class="tl-desc">Doctoral research on computational chemistry, MLIPs, and automated quantum-chemistry workflows.</div>
+        </div>
+
+        <div class="tl-item award">
+          <div class="tl-date">2026</div>
+          <div class="tl-title">Outstanding Graduate of Zhejiang University (University-level)</div>
+        </div>
+
+        <div class="tl-item award">
+          <div class="tl-date">2024 &ndash; 2025</div>
+          <div class="tl-title">Academic Excellence Pacemaker &middot; Zhejiang University Scholarship &middot; Stuttgart Scholarship &middot; Liyue Venture Capital Scholarship</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">06/2025 &ndash; 08/2025</div>
+          <div class="tl-title">LIFS Summer Research Program</div>
+          <div class="tl-org">HKUST &middot; Supervisor: Prof. Tuan Anh Nguyen</div>
+          <div class="tl-desc">Molecular dynamics study on DICER&ndash;RNA interaction mechanism using GROMACS, PYMOL, VMD, and AlphaFold.</div>
+        </div>
+
+        <div class="tl-item award">
+          <div class="tl-date">11/2025</div>
+          <div class="tl-title">Gold Medal &amp; Grand Prize (TOP 1), the 4th SynBio Challenges</div>
+        </div>
+
+        <div class="tl-item award">
+          <div class="tl-date">08/2025</div>
+          <div class="tl-title">Silver Medal, International Genetically Engineered Machine Competition (iGEM)</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">01/2025 &ndash; 11/2025</div>
+          <div class="tl-title">Dry-lab Member, 2025 ZJU-China iGEM Team</div>
+          <div class="tl-org">Zhejiang University &middot; Supervisor: Prof. Ming Chen</div>
+          <div class="tl-desc">Designed scientific schematics and illustrations for synthetic biology workflows using Figma, Illustrator, and BioRender.</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">04/2024 &ndash; 01/2025</div>
+          <div class="tl-title">Research on Molecular Dynamics &amp; Cheminformatics</div>
+          <div class="tl-org">Zhejiang University &middot; Supervisors: Prof. Yingchun Liu &amp; Prof. Ruikang Tang</div>
+          <div class="tl-desc">GROMACS MD/SMD/umbrella sampling of SARS-CoV-2/ACE2 binding; RDKit/PubChemPy/PySCF-based cheminformatics; viral plaque assays.</div>
+        </div>
+
+        <div class="tl-item award">
+          <div class="tl-date">12/2024</div>
+          <div class="tl-title">First Prize (TOP 6%), National Undergraduate Chemistry Experiment Innovation Design Competition</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-date">07/2024 &ndash; 12/2024</div>
+          <div class="tl-title">Captain, National Chemistry Experiment Innovation Design Competition</div>
+          <div class="tl-org">Zhejiang University &middot; Supervisors: Prof. Yingchun Liu &amp; Prof. Qi Wang</div>
+          <div class="tl-desc">Built an interactive React.js + d3.js web app for vapor&ndash;liquid equilibria and distillation (First Prize, TOP 6%).</div>
+        </div>
+
+        <div class="tl-item award">
+          <div class="tl-date">2023 &ndash; 2024</div>
+          <div class="tl-title">Academic Excellence Pacemaker</div>
+        </div>
+        
+        <div class="tl-item">
+          <div class="tl-date">04/2024 &ndash; 11/2024</div>
+          <div class="tl-title">Project Leader, Student Research Training Program (SRTP)</div>
+          <div class="tl-org">Zhejiang University &middot; Supervisor: Prof. Haiming Zhu</div>
+          <div class="tl-desc">Large-area 2D single-crystal synthesis of anthracene derivatives for optoelectronic applications.</div>
+        </div>
+
+
+        <div class="tl-item award">
+          <div class="tl-date">2022 &ndash; 2023</div>
+          <div class="tl-title">Academic Excellence Pacemaker &middot; Zhejiang University Scholarship</div>
+        </div>
+
+
+
+      </div>
+    </section>
+
+    <!-- CV -->
+    <section class="page-section" id="cv">
+      <h1>More</h1>
+      <p>
+        A full HTML version of my r&eacute;sum&eacute; is available
+        <a href="Tingting Liu.html">here</a>.
+      </p>
+      <p>
+        A PDF version will be uploaded soon. For any inquiries, please contact me via email:
+        <a href="mailto:youziduyue@126.com">youziduyue@126.com</a>.
+      </p>
+    </section>
+
+    <div class="site-footer">
+      &copy; 2026 Tingting Liu &middot; Department of Chemistry, CUHK &middot; Site last updated 2026-08-01
+    </div>
+
+  </main>
+</div>
+
+<script>
+  // Page switching: click menu -> show target section
+  const menu = document.getElementById('menu');
+  const links = menu.querySelectorAll('a[data-target]');
+  const sections = document.querySelectorAll('.page-section');
+
+  links.forEach(link => {
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      const target = this.getAttribute('data-target');
+
+      // toggle active link
+      links.forEach(l => l.classList.remove('active'));
+      this.classList.add('active');
+
+      // toggle visible section
+      sections.forEach(s => {
+        s.classList.toggle('active', s.id === target);
+      });
+
+      // scroll content to top
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+</script>
+
+</body>
+</html>
